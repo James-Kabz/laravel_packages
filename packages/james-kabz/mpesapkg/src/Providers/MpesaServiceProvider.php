@@ -18,6 +18,6 @@ class MpesaServiceProvider extends ServiceProvider
         ], 'mpesa-config');
 
         // load migrations
-        $this->loadMigrationsFrom(__DIR__ . '../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
     }
 }

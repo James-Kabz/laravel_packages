@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b209304cdec6741041fe0fdd2b427660",
+    "content-hash": "e1830e781dc3563e8dcae7e1573b1ee3",
     "packages": [
         {
             "name": "brick/math",
@@ -1051,6 +1051,45 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "james-kabz/mpesapkg",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "packages/james-kabz/mpesapkg",
+                "reference": "61567c31d4aa7dbb505e7a5649dd4e33124eca33"
+            },
+            "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "JamesKabz\\MpesaPkg\\Providers\\MpesaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JamesKabz\\MpesaPkg\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "James Kabz",
+                    "email": "kabogp@gmail.com"
+                }
+            ],
+            "description": "Laravel package for integrating Safaricom M-Pesa APIs",
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",

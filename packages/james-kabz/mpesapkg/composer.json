@@ -4,7 +4,7 @@
     "description": "Laravel package for integrating Safaricom M-Pesa APIs",
     "type": "library",
     "license": "MIT",
-    "author": [
+    "authors": [
         {
             "name": "James Kabz",
             "email": "kabogp@gmail.com"
