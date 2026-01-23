@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        $table = config('sms.logging.table', 'sms_logs');
+
+        Schema::create($table, function (Blueprint $table) {
+            $table->id();
+            $table->string('driver')->nullable();
+            $table->text('recipient');
+            $table->longText('message');
+            $table->boolean('success')->default(false);
+            $table->string('status')->nullable();
+            $table->json('response')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        $table = config('sms.logging.table', 'sms_logs');
+
+        Schema::dropIfExists($table);
+    }
+};

@@ -1097,12 +1097,19 @@
             "dist": {
                 "type": "path",
                 "url": "packages/james-kabz/sms",
-                "reference": "1666d790a570f91c499d07060163517beecd211c"
+                "reference": "45906cb3e760ebdd0cdee06e1041dc7db0980ffb"
             },
             "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
                 "illuminate/http": "^10.0|^11.0|^12.0",
+                "illuminate/notifications": "^10.0|^11.0|^12.0",
+                "illuminate/routing": "^10.0|^11.0|^12.0",
                 "illuminate/support": "^10.0|^11.0|^12.0",
                 "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^10.5|^11.0"
             },
             "type": "library",
             "extra": {
@@ -1115,6 +1122,11 @@
             "autoload": {
                 "psr-4": {
                     "JamesKabz\\Sms\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "JamesKabz\\Sms\\Tests\\": "tests/"
                 }
             },
             "license": [

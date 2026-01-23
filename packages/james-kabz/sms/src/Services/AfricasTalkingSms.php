@@ -5,8 +5,9 @@ namespace JamesKabz\Sms\Services;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
+use JamesKabz\Sms\Contracts\SmsDriver;
 
-class AfricasTalkingSms
+class AfricasTalkingSms implements SmsDriver
 {
     public function __construct(private array $config)
     {

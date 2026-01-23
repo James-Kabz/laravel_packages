@@ -53,6 +53,11 @@ Optional overrides:
 AFRICASTALKING_SMS_ENDPOINT=https://api.africastalking.com/version1/messaging
 AFRICASTALKING_TIMEOUT=15
 AFRICASTALKING_BULK_MODE=1
+
+SMS_DRIVER=africastalking
+SMS_LOGGING=true
+SMS_WEBHOOK_ENABLED=false
+SMS_WEBHOOK_PATH=sms/webhook
 ```
 
 ## Usage
@@ -65,12 +70,32 @@ use JamesKabz\Sms\Facades\Sms;
 Sms::send('+2547XXXXXXXX', 'Hello from Africa\'s Talking');
 ```
 
+### Drivers
+
+Set the default driver in `.env`:
+
+```
+SMS_DRIVER=africastalking
+```
+
+To add another driver, define it in `config/sms.php` under `drivers` with a `class` key that implements `JamesKabz\\Sms\\Contracts\\SmsDriver`, then set `SMS_DRIVER` to that name.
+
+### Send with a template
+
+```php
+// config/sms.php -> templates['compliance_notice']
+Sms::sendTemplate('compliance_notice', '+2547XXXXXXXX', [
+    'name' => 'Amina',
+    'status' => 'COMPLIANT',
+]);
+```
+
 ### Dependency Injection
 
 ```php
-use JamesKabz\Sms\Services\AfricasTalkingSms;
+use JamesKabz\Sms\Services\SmsManager;
 
-public function send(AfricasTalkingSms $sms)
+public function send(SmsManager $sms)
 {
     $sms->send(['+2547XXXXXXXX', '+2547YYYYYYYY'], 'Hello!');
 }
@@ -84,6 +109,51 @@ Sms::send('+2547XXXXXXXX', 'Hello', [
     'bulkSMSMode' => 1,
 ]);
 ```
+
+## Notifications (SmsChannel)
+
+```php
+use Illuminate\\Notifications\\Notification;
+use JamesKabz\\Sms\\Notifications\\SmsChannel;
+
+class ComplianceNotice extends Notification
+{
+    public function via($notifiable): array
+    {
+        return [SmsChannel::class];
+    }
+
+    public function toSms($notifiable): array
+    {
+        return [
+            'template' => 'compliance_notice',
+            'data' => ['name' => $notifiable->name, 'status' => $notifiable->status],
+        ];
+    }
+}
+```
+
+To resolve the phone number, implement `routeNotificationForSms()` on your notifiable or provide a `phone` / `phone_number` field.
+
+## Logging
+
+When `SMS_LOGGING=true`, send attempts are stored in the `sms_logs` table.
+Run migrations in your app:
+
+```bash
+php artisan migrate
+```
+
+## Webhook (delivery reports)
+
+Enable in `.env`:
+
+```
+SMS_WEBHOOK_ENABLED=true
+SMS_WEBHOOK_PATH=sms/webhook
+```
+
+This registers a POST endpoint that stores the payload in `sms_logs` (when logging is enabled).
 
 ## Response format
 
@@ -102,6 +172,14 @@ Sms::send('+2547XXXXXXXX', 'Hello', [
 
 - Ensure your sender ID (`AFRICASTALKING_FROM`) is approved in Africa's Talking.
 - For production, use your live username and API key (not the sandbox).
+
+## Testing (package)
+
+```bash
+cd packages/james-kabz/sms
+composer install
+vendor/bin/phpunit
+```
 
 ## License
 
