@@ -4,6 +4,7 @@ namespace JamesKabz\MpesaPkg;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use JamesKabz\MpesaPkg\Services\MpesaHelper;
 
 class MpesaClient
 {
@@ -136,13 +137,25 @@ class MpesaClient
         $b2cConfig = $this->config['credentials']['b2c'] ?? [];
         $shortCode = $b2cConfig['short_code'] ?? null;
         $initiator = $b2cConfig['initiator_name'] ?? null;
+        $initiatorPassword = $b2cConfig['initiator_password'] ?? null;
         $securityCredential = $b2cConfig['security_credential'] ?? null;
 
-        if (! $shortCode || ! $initiator || ! $securityCredential) {
+        if (! $shortCode || ! $initiator || (! $initiatorPassword && ! $securityCredential)) {
             return [
                 'ok' => false,
-                'error' => 'Missing MPESA_B2C_SHORT_CODE, MPESA_B2C_INITIATOR, or MPESA_B2C_SECURITY_CREDENTIAL.',
+                'error' => 'Missing MPESA_B2C_SHORT_CODE, MPESA_B2C_INITIATOR, and either MPESA_B2C_INITIATOR_PASSWORD or MPESA_B2C_SECURITY_CREDENTIAL.',
             ];
+        }
+
+        if ($initiatorPassword) {
+            try {
+                $securityCredential = MpesaHelper::generateSecurityCredential($initiatorPassword);
+            } catch (\Throwable $e) {
+                return [
+                    'ok' => false,
+                    'error' => $e->getMessage(),
+                ];
+            }
         }
 
         $data = [

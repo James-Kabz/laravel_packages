@@ -4,6 +4,7 @@ namespace JamesKabz\MpesaPkg\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use JamesKabz\MpesaPkg\MpesaClient;
+use JamesKabz\MpesaPkg\Console\GenerateSecurityCredential;
 
 class MpesaServiceProvider extends ServiceProvider
 {
@@ -24,5 +25,11 @@ class MpesaServiceProvider extends ServiceProvider
 
         // load migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                GenerateSecurityCredential::class,
+            ]);
+        }
     }
 }
