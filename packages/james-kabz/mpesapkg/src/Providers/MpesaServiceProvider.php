@@ -3,12 +3,17 @@
 namespace JamesKabz\MpesaPkg\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use JamesKabz\MpesaPkg\MpesaClient;
 
 class MpesaServiceProvider extends ServiceProvider
 {
     public function register()
     {
         $this->mergeConfigFrom(__DIR__ . '/../Config/mpesa.php', 'mpesa');
+
+        $this->app->singleton(MpesaClient::class, function ($app) {
+            return new MpesaClient($app['config']->get('mpesa', []));
+        });
     }
 
     public function boot()
