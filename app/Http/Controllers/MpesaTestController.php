@@ -38,12 +38,51 @@ class MpesaTestController extends Controller
             'amount' => $data['amount'],
         ]);
 
-        return back()->with('mpesa_stk_result', $result);
+        MpesaRequest::create([
+            'type' => 'stk',
+            'phone' => $data['phone'],
+            'amount' => $data['amount'],
+            'response_code' => data_get($result, 'data.ResponseCode'),
+            'response_description' => data_get($result, 'data.ResponseDescription'),
+            'request_payload' => [
+                'phone' => $data['phone'],
+                'amount' => $data['amount'],
+            ],
+            'response_payload' => $result['data'] ?? $result,
+        ]);
+
+        return response()->json($result, $result['ok'] ? 200 : 400);
     }
 
     public function stkCallback(Request $request)
     {
         Log::info('M-Pesa STK callback received', $request->all());
+        $payload = $request->all();
+        $stkCallback = data_get($payload, 'Body.stkCallback');
+
+        if (! is_array($stkCallback) || data_get($stkCallback, 'ResultCode') === null) {
+            Log::warning('M-Pesa STK callback missing required fields', [
+                'payload' => $payload,
+            ]);
+
+            return response()->json([
+                'ResultCode' => 0,
+                'ResultDesc' => 'Accepted',
+            ]);
+        }
+
+        $metadata = data_get($stkCallback, 'CallbackMetadata.Item', []);
+        $receipt = collect($metadata)->firstWhere('Name', 'MpesaReceiptNumber');
+
+        MpesaCallback::create([
+            'type' => 'stk',
+            'result_code' => data_get($stkCallback, 'ResultCode'),
+            'result_desc' => data_get($stkCallback, 'ResultDesc'),
+            'originator_conversation_id' => data_get($stkCallback, 'MerchantRequestID'),
+            'conversation_id' => data_get($stkCallback, 'CheckoutRequestID'),
+            'transaction_id' => is_array($receipt) ? ($receipt['Value'] ?? null) : null,
+            'payload' => $payload,
+        ]);
 
         return response()->json([
             'ResultCode' => 0,

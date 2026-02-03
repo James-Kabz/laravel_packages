@@ -2,6 +2,10 @@
 
 return [
     'env' => env('MPESA_ENV', 'sandbox'),
+    'route_prefix' => env('MPESA_ROUTE_PREFIX', 'mpesa'),
+    'route_middleware' => ['api'],
+    'store_requests' => env('MPESA_STORE_REQUESTS', true),
+    'store_callbacks' => env('MPESA_STORE_CALLBACKS', true),
     'consumer_key' => env('MPESA_CONSUMER_KEY'),
     'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
     'base_url' => env('MPESA_BASE_URL', 'https://sandbox.safaricom.co.ke'),
