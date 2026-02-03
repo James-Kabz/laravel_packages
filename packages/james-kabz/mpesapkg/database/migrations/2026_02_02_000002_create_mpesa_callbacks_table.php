@@ -9,18 +9,23 @@ return new class extends Migration {
     {
         Schema::create('mpesa_callbacks', function (Blueprint $table) {
             $table->id();
-            $table->string('type', 20);
+            $table->string('type', 20)->index();
             $table->integer('result_code')->nullable();
             $table->string('result_desc', 200)->nullable();
-            $table->string('originator_conversation_id', 100)->nullable();
-            $table->string('conversation_id', 100)->nullable();
-            $table->string('transaction_id', 100)->nullable();
+            $table->string('originator_conversation_id', 100)->nullable()->index();
+            $table->string('conversation_id', 100)->nullable()->index();
+            $table->string('transaction_id', 100)->nullable()->index();
+            $table->string('merchant_request_id', 100)->nullable()->index();
+            $table->string('checkout_request_id', 100)->nullable()->index();
+            $table->string('mpesa_receipt_number', 100)->nullable()->index();
+            $table->decimal('amount', 12, 2)->nullable();
+            $table->string('phone', 30)->nullable()->index();
+            $table->string('party_a', 30)->nullable()->index();
+            $table->string('party_b', 30)->nullable()->index();
             $table->json('payload')->nullable();
             $table->timestamps();
 
             $table->index(['type', 'result_code']);
-            $table->index('originator_conversation_id');
-            $table->index('conversation_id');
         });
     }
 

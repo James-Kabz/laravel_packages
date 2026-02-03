@@ -31,15 +31,21 @@ class MpesaB2cController
 
         if (config('mpesa.store_requests', true)) {
             try {
+                $b2cConfig = config('mpesa.credentials.b2c', []);
                 MpesaRequest::create([
                     'type' => 'b2c',
+                    'status' => $result['ok'] ? 'pending' : 'failed',
                     'phone' => $data['phone'],
                     'amount' => $data['amount'],
                     'remarks' => $data['remarks'] ?? null,
+                    'command_id' => $b2cConfig['command_id'] ?? null,
+                    'party_a' => $b2cConfig['short_code'] ?? null,
+                    'party_b' => $data['phone'],
                     'originator_conversation_id' => data_get($result, 'data.OriginatorConversationID'),
                     'conversation_id' => data_get($result, 'data.ConversationID'),
                     'response_code' => data_get($result, 'data.ResponseCode'),
                     'response_description' => data_get($result, 'data.ResponseDescription'),
+                    'transaction_id' => data_get($result, 'data.TransactionID'),
                     'request_payload' => [
                         'phone' => $data['phone'],
                         'amount' => $data['amount'],

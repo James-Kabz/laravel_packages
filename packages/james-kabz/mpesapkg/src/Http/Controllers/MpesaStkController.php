@@ -35,10 +35,17 @@ class MpesaStkController
 
         if (config('mpesa.store_requests', true)) {
             try {
+                $stkConfig = config('mpesa.credentials.stk', []);
                 MpesaRequest::create([
                     'type' => 'stk',
+                    'status' => $result['ok'] ? 'pending' : 'failed',
                     'phone' => $data['phone'],
                     'amount' => $data['amount'],
+                    'party_a' => $data['phone'],
+                    'party_b' => $data['party_b'] ?? ($stkConfig['short_code'] ?? null),
+                    'command_id' => $data['transaction_type'] ?? null,
+                    'merchant_request_id' => data_get($result, 'data.MerchantRequestID'),
+                    'checkout_request_id' => data_get($result, 'data.CheckoutRequestID'),
                     'response_code' => data_get($result, 'data.ResponseCode'),
                     'response_description' => data_get($result, 'data.ResponseDescription'),
                     'request_payload' => [
@@ -78,7 +85,8 @@ class MpesaStkController
         }
 
         $metadata = data_get($stkCallback, 'CallbackMetadata.Item', []);
-        $receipt = collect($metadata)->firstWhere('Name', 'MpesaReceiptNumber');
+        $metadataItems = collect($metadata);
+        $receipt = $metadataItems->firstWhere('Name', 'MpesaReceiptNumber');
 
         if (config('mpesa.store_callbacks', true)) {
             try {
@@ -89,6 +97,11 @@ class MpesaStkController
                     'originator_conversation_id' => data_get($stkCallback, 'MerchantRequestID'),
                     'conversation_id' => data_get($stkCallback, 'CheckoutRequestID'),
                     'transaction_id' => is_array($receipt) ? ($receipt['Value'] ?? null) : null,
+                    'merchant_request_id' => data_get($stkCallback, 'MerchantRequestID'),
+                    'checkout_request_id' => data_get($stkCallback, 'CheckoutRequestID'),
+                    'mpesa_receipt_number' => is_array($receipt) ? ($receipt['Value'] ?? null) : null,
+                    'amount' => data_get($metadataItems->firstWhere('Name', 'Amount'), 'Value'),
+                    'phone' => data_get($metadataItems->firstWhere('Name', 'PhoneNumber'), 'Value'),
                     'payload' => $payload,
                 ]);
             } catch (\Throwable $e) {
