@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('currency', 3)->default('KES');
             $table->string('remarks', 200)->nullable();
             $table->string('command_id', 50)->nullable();
+            $table->string('bill_ref_number', 100)->nullable()->index();
             $table->string('originator_conversation_id', 100)->nullable()->index();
             $table->string('conversation_id', 100)->nullable()->index();
             $table->string('merchant_request_id', 100)->nullable()->index();

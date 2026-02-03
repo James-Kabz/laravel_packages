@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('merchant_request_id', 100)->nullable()->index();
             $table->string('checkout_request_id', 100)->nullable()->index();
             $table->string('mpesa_receipt_number', 100)->nullable()->index();
+            $table->string('bill_ref_number', 100)->nullable()->index();
             $table->decimal('amount', 12, 2)->nullable();
             $table->string('phone', 30)->nullable()->index();
             $table->string('party_a', 30)->nullable()->index();

@@ -104,6 +104,8 @@ class MpesaB2cController
                     'originator_conversation_id' => data_get($payload, 'Result.OriginatorConversationID'),
                     'conversation_id' => data_get($payload, 'Result.ConversationID'),
                     'transaction_id' => data_get($payload, 'Result.TransactionID'),
+                    'party_a' => data_get($payload, 'Result.OriginatorConversationID'),
+                    'party_b' => data_get($payload, 'Result.ConversationID'),
                     'payload' => $payload,
                 ]);
             } catch (\Throwable $e) {

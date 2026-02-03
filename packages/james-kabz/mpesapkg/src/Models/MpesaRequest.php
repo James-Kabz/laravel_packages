@@ -16,6 +16,7 @@ class MpesaRequest extends Model
         'currency',
         'remarks',
         'command_id',
+        'bill_ref_number',
         'originator_conversation_id',
         'conversation_id',
         'merchant_request_id',

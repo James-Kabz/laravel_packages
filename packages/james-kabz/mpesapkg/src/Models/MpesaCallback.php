@@ -16,6 +16,7 @@ class MpesaCallback extends Model
         'merchant_request_id',
         'checkout_request_id',
         'mpesa_receipt_number',
+        'bill_ref_number',
         'amount',
         'phone',
         'party_a',
