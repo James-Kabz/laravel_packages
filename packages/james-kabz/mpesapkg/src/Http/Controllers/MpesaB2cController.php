@@ -6,11 +6,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use JamesKabz\MpesaPkg\MpesaClient;
+use JamesKabz\MpesaPkg\Http\Concerns\ValidatesWebhook;
 use JamesKabz\MpesaPkg\Models\MpesaCallback;
 use JamesKabz\MpesaPkg\Models\MpesaRequest;
 
 class MpesaB2cController
 {
+    use ValidatesWebhook;
+
     public function send(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -60,11 +63,33 @@ class MpesaB2cController
             }
         }
 
-        return response()->json($result, $result['ok'] ? 200 : 400);
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
+    }
+
+    public function validated(Request $request, MpesaClient $client): JsonResponse
+    {
+        $data = $request->validate([
+            'phone' => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'remarks' => ['required', 'string', 'max:200'],
+            'id_number' => ['required', 'string', 'max:20'],
+            'id_type' => ['nullable', 'string', 'max:5'],
+            'occasion' => ['nullable', 'string', 'max:200'],
+            'originator_conversation_id' => ['nullable', 'string', 'max:100'],
+            'command_id' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $result = $client->validatedB2c($data);
+
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
     public function result(Request $request): JsonResponse
     {
+        if ($response = $this->validateWebhook($request)) {
+            return $response;
+        }
+
         Log::info('M-Pesa B2C result received', $request->all());
         $payload = $request->all();
 
@@ -92,6 +117,10 @@ class MpesaB2cController
 
     public function timeout(Request $request): JsonResponse
     {
+        if ($response = $this->validateWebhook($request)) {
+            return $response;
+        }
+
         Log::info('M-Pesa B2C timeout received', $request->all());
         $payload = $request->all();
 

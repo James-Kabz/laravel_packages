@@ -5,12 +5,49 @@ namespace JamesKabz\MpesaPkg\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use JamesKabz\MpesaPkg\Http\Concerns\ValidatesWebhook;
+use JamesKabz\MpesaPkg\MpesaClient;
 use JamesKabz\MpesaPkg\Models\MpesaCallback;
 
 class MpesaC2bController
 {
+    use ValidatesWebhook;
+
+    public function register(Request $request, MpesaClient $client): JsonResponse
+    {
+        $data = $request->validate([
+            'short_code' => ['nullable', 'string', 'max:20'],
+            'confirmation_url' => ['nullable', 'url'],
+            'validation_url' => ['nullable', 'url'],
+            'response_type' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $result = $client->c2bRegisterUrls($data);
+
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
+    }
+
+    public function simulate(Request $request, MpesaClient $client): JsonResponse
+    {
+        $data = $request->validate([
+            'phone' => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'short_code' => ['nullable', 'string', 'max:20'],
+            'command_id' => ['nullable', 'string', 'max:50'],
+            'bill_ref_number' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $result = $client->c2bSimulate($data);
+
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
+    }
+
     public function validation(Request $request): JsonResponse
     {
+        if ($response = $this->validateWebhook($request)) {
+            return $response;
+        }
+
         Log::info('M-Pesa C2B validation received', $request->all());
         $payload = $request->all();
 
@@ -42,6 +79,10 @@ class MpesaC2bController
 
     public function confirmation(Request $request): JsonResponse
     {
+        if ($response = $this->validateWebhook($request)) {
+            return $response;
+        }
+
         Log::info('M-Pesa C2B confirmation received', $request->all());
         $payload = $request->all();
 

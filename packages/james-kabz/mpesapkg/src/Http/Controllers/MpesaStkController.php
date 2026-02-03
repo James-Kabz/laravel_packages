@@ -6,11 +6,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use JamesKabz\MpesaPkg\MpesaClient;
+use JamesKabz\MpesaPkg\Http\Concerns\ValidatesWebhook;
 use JamesKabz\MpesaPkg\Models\MpesaCallback;
 use JamesKabz\MpesaPkg\Models\MpesaRequest;
 
 class MpesaStkController
 {
+    use ValidatesWebhook;
+
     public function push(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -44,6 +47,7 @@ class MpesaStkController
                     'party_a' => $data['phone'],
                     'party_b' => $data['party_b'] ?? ($stkConfig['short_code'] ?? null),
                     'command_id' => $data['transaction_type'] ?? null,
+                    'bill_ref_number' => $data['account_reference'] ?? null,
                     'merchant_request_id' => data_get($result, 'data.MerchantRequestID'),
                     'checkout_request_id' => data_get($result, 'data.CheckoutRequestID'),
                     'response_code' => data_get($result, 'data.ResponseCode'),
@@ -64,11 +68,15 @@ class MpesaStkController
             }
         }
 
-        return response()->json($result, $result['ok'] ? 200 : 400);
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
     public function callback(Request $request): JsonResponse
     {
+        if ($response = $this->validateWebhook($request)) {
+            return $response;
+        }
+
         Log::info('M-Pesa STK callback received', $request->all());
         $payload = $request->all();
         $stkCallback = data_get($payload, 'Body.stkCallback');
@@ -113,5 +121,17 @@ class MpesaStkController
             'ResultCode' => 0,
             'ResultDesc' => 'Accepted',
         ]);
+    }
+
+    public function query(Request $request, MpesaClient $client): JsonResponse
+    {
+        $data = $request->validate([
+            'checkout_request_id' => ['required', 'string'],
+            'timestamp' => ['nullable', 'string'],
+        ]);
+
+        $result = $client->stkQuery($data);
+
+        return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 }
