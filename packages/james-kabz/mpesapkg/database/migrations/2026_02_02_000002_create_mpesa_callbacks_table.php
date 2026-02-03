@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        /**
+         * Store inbound M-Pesa callbacks (C2B, STK, B2C, utilities).
+         */
         Schema::create('mpesa_callbacks', function (Blueprint $table) {
             $table->id();
             $table->string('type', 20)->index();
@@ -32,6 +35,9 @@ return new class extends Migration {
 
     public function down(): void
     {
+        /**
+         * Drop inbound M-Pesa callbacks table.
+         */
         Schema::dropIfExists('mpesa_callbacks');
     }
 };

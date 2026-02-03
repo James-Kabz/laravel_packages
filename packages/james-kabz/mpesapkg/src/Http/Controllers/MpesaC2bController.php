@@ -13,6 +13,9 @@ class MpesaC2bController
 {
     use ValidatesWebhook;
 
+    /**
+     * Register C2B validation and confirmation URLs.
+     */
     public function register(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -27,6 +30,9 @@ class MpesaC2bController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Simulate a C2B transaction (sandbox).
+     */
     public function simulate(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -42,6 +48,9 @@ class MpesaC2bController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle C2B validation callback and persist if enabled.
+     */
     public function validation(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -77,6 +86,9 @@ class MpesaC2bController
         ]);
     }
 
+    /**
+     * Handle C2B confirmation callback and persist if enabled.
+     */
     public function confirmation(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {

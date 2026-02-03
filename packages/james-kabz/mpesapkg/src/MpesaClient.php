@@ -22,6 +22,8 @@ class MpesaClient
     }
 
     /**
+     * Request OAuth access token using configured consumer key/secret.
+     *
      * @return array<string, mixed>
      */
     public function getAccessToken(): array
@@ -46,6 +48,9 @@ class MpesaClient
     }
 
     /**
+     * Initiate STK push for a customer payment.
+     * Required payload: phone, amount
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -98,6 +103,9 @@ class MpesaClient
     }
 
     /**
+     * Send B2C payment.
+     * Required payload: phone, amount (config must include initiator/credential/shortcode)
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -157,6 +165,9 @@ class MpesaClient
     }
 
     /**
+     * Send B2C payment with ID validation.
+     * Required payload: phone, amount, remarks, id_number
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -222,6 +233,9 @@ class MpesaClient
     }
 
     /**
+     * Register C2B validation and confirmation URLs.
+     * Required payload: short_code, confirmation_url, validation_url
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -262,6 +276,9 @@ class MpesaClient
     }
 
     /**
+     * Simulate C2B payment (sandbox).
+     * Required payload: phone, amount, short_code, command_id
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -305,6 +322,9 @@ class MpesaClient
     }
 
     /**
+     * Query STK push status using CheckoutRequestID.
+     * Required payload: checkout_request_id
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -350,6 +370,9 @@ class MpesaClient
     }
 
     /**
+     * Query a transaction status.
+     * Required payload: short_code, transaction_id, identifier_type, remarks
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -409,6 +432,9 @@ class MpesaClient
     }
 
     /**
+     * Query account balance.
+     * Required payload: short_code, identifier_type, remarks
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -466,6 +492,9 @@ class MpesaClient
     }
 
     /**
+     * Reverse a transaction.
+     * Required payload: short_code, transaction_id, amount, remarks
+     *
      * @param array<string, mixed> $payload
      * @return array<string, mixed>
      */
@@ -525,6 +554,9 @@ class MpesaClient
         return $this->formatHttpResponse($response);
     }
 
+    /**
+     * Normalize phone number to 2547XXXXXXXX format.
+     */
     private function normalizePhone(string $phone): string
     {
         $digits = preg_replace('/\D+/', '', $phone) ?? '';
@@ -541,12 +573,18 @@ class MpesaClient
         return $digits;
     }
 
+    /**
+     * Resolve callback URL by config key.
+     */
     private function resolveCallback(string $key): ?string
     {
         $callbacks = $this->config['callbacks'] ?? [];
         return $callbacks[$key] ?? null;
     }
 
+    /**
+     * Build a standardized error response.
+     */
     private function errorResponse(string $message, int $status = 400): array
     {
         return [
@@ -558,6 +596,9 @@ class MpesaClient
         ];
     }
 
+    /**
+     * Build a standardized response from an HTTP client response.
+     */
     private function formatHttpResponse($response): array
     {
         $json = $response->json();

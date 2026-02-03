@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class MpesaCallback extends Model
 {
+    /**
+     * Attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'type',
         'result_code',

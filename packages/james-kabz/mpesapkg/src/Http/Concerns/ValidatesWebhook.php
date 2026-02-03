@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 trait ValidatesWebhook
 {
+    /**
+     * Validate webhook token/IP allow-list when enabled.
+     * Returns a JsonResponse on failure or null on success.
+     */
     protected function validateWebhook(Request $request): ?JsonResponse
     {
         if (! config('mpesa.webhook_validation.enabled', false)) {

@@ -14,6 +14,9 @@ class MpesaStkController
 {
     use ValidatesWebhook;
 
+    /**
+     * Initiate STK push and persist request if enabled.
+     */
     public function push(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -71,6 +74,9 @@ class MpesaStkController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle STK callback and persist if enabled.
+     */
     public function callback(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -123,6 +129,9 @@ class MpesaStkController
         ]);
     }
 
+    /**
+     * Query STK push status using CheckoutRequestID.
+     */
     public function query(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([

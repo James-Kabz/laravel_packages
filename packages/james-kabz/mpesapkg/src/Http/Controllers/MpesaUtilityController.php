@@ -13,6 +13,9 @@ class MpesaUtilityController
 {
     use ValidatesWebhook;
 
+    /**
+     * Initiate transaction status query.
+     */
     public function transactionStatus(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -32,6 +35,9 @@ class MpesaUtilityController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle transaction status result callback.
+     */
     public function transactionStatusResult(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -63,6 +69,9 @@ class MpesaUtilityController
         ]);
     }
 
+    /**
+     * Handle transaction status timeout callback.
+     */
     public function transactionStatusTimeout(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -94,6 +103,9 @@ class MpesaUtilityController
         ]);
     }
 
+    /**
+     * Initiate account balance query.
+     */
     public function accountBalance(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -111,6 +123,9 @@ class MpesaUtilityController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle account balance result callback.
+     */
     public function accountBalanceResult(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -142,6 +157,9 @@ class MpesaUtilityController
         ]);
     }
 
+    /**
+     * Handle account balance timeout callback.
+     */
     public function accountBalanceTimeout(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -173,6 +191,9 @@ class MpesaUtilityController
         ]);
     }
 
+    /**
+     * Initiate a reversal.
+     */
     public function reversal(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -193,6 +214,9 @@ class MpesaUtilityController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle reversal result callback.
+     */
     public function reversalResult(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -224,6 +248,9 @@ class MpesaUtilityController
         ]);
     }
 
+    /**
+     * Handle reversal timeout callback.
+     */
     public function reversalTimeout(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {

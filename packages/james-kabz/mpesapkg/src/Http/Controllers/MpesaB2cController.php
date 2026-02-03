@@ -14,6 +14,9 @@ class MpesaB2cController
 {
     use ValidatesWebhook;
 
+    /**
+     * Send a B2C payment and persist request if enabled.
+     */
     public function send(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -66,6 +69,9 @@ class MpesaB2cController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Send a B2C payment with ID validation.
+     */
     public function validated(Request $request, MpesaClient $client): JsonResponse
     {
         $data = $request->validate([
@@ -84,6 +90,9 @@ class MpesaB2cController
         return response()->json($result, $result['status'] ?? ($result['ok'] ? 200 : 400));
     }
 
+    /**
+     * Handle B2C result callback and persist if enabled.
+     */
     public function result(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {
@@ -115,6 +124,9 @@ class MpesaB2cController
         ]);
     }
 
+    /**
+     * Handle B2C timeout callback and persist if enabled.
+     */
     public function timeout(Request $request): JsonResponse
     {
         if ($response = $this->validateWebhook($request)) {

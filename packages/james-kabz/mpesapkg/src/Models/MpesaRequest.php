@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class MpesaRequest extends Model
 {
+    /**
+     * Attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'type',
         'status',
