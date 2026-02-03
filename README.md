@@ -1,59 +1,353 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MpesaPkg (Laravel)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plug-and-play M-Pesa package with STK, B2C, C2B, and utility APIs. Includes request/response persistence, callback storage, and optional webhook validation.
 
-## About Laravel
+## Quick Start
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1) Publish config (optional):
+```bash
+php artisan vendor:publish --tag=mpesa-config
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+2) Run migrations:
+```bash
+php artisan migrate
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+3) Place certificates:
+```text
+storage/app/private/certs/SandboxCertificate.cer
+storage/app/private/certs/ProductionCertificate.cer
+```
 
-## Learning Laravel
+4) Configure env (see template below).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Environment Variables (example)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```dotenv
+MPESA_ENV=sandbox
+MPESA_BASE_URL=https://sandbox.safaricom.co.ke
+MPESA_ROUTE_PREFIX=payments
+MPESA_STORE_REQUESTS=true
+MPESA_STORE_CALLBACKS=true
 
-## Laravel Sponsors
+MPESA_CONSUMER_KEY=...
+MPESA_CONSUMER_SECRET=...
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# STK
+MPESA_STK_SHORT_CODE=174379
+MPESA_STK_PASSKEY=...
+MPESA_STK_CALLBACK_URL=https://example.ngrok-free.app/payments/stk/callback
 
-### Premium Partners
+# B2C
+MPESA_B2C_INITIATOR=testapi
+MPESA_B2C_INITIATOR_PASSWORD=
+MPESA_B2C_SECURITY_CREDENTIAL=...
+MPESA_B2C_SHORT_CODE=600997
+MPESA_B2C_COMMAND_ID=BusinessPayment
+MPESA_B2C_RESULT_URL=https://example.ngrok-free.app/payments/b2c/result
+MPESA_B2C_TIMEOUT_URL=https://example.ngrok-free.app/payments/b2c/timeout
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# C2B
+MPESA_C2B_SHORT_CODE=600997
+MPESA_C2B_RESPONSE_TYPE=Completed
+MPESA_C2B_VALIDATION_URL=https://example.ngrok-free.app/payments/c2b/validation
+MPESA_C2B_CONFIRMATION_URL=https://example.ngrok-free.app/payments/c2b/confirmation
 
-## Contributing
+# Utility callbacks
+MPESA_TRANSACTION_STATUS_RESULT_URL=https://example.ngrok-free.app/payments/transaction/status/result
+MPESA_TRANSACTION_STATUS_TIMEOUT_URL=https://example.ngrok-free.app/payments/transaction/status/timeout
+MPESA_ACCOUNT_BALANCE_RESULT_URL=https://example.ngrok-free.app/payments/account/balance/result
+MPESA_ACCOUNT_BALANCE_TIMEOUT_URL=https://example.ngrok-free.app/payments/account/balance/timeout
+MPESA_REVERSAL_RESULT_URL=https://example.ngrok-free.app/payments/reversal/result
+MPESA_REVERSAL_TIMEOUT_URL=https://example.ngrok-free.app/payments/reversal/timeout
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Webhook validation (optional)
+MPESA_WEBHOOK_VALIDATION=false
+MPESA_WEBHOOK_HEADER=X-Mpesa-Token
+MPESA_WEBHOOK_TOKEN=
+MPESA_WEBHOOK_ALLOWED_IPS=
+```
 
-## Code of Conduct
+Note: some sandbox environments reject callback URLs containing the word `mpesa` in the path. If you see `Invalid ValidationURL`, use a different prefix such as `payments`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Routes (under MPESA_ROUTE_PREFIX)
 
-## Security Vulnerabilities
+```text
+POST /<prefix>/stk/push
+POST /<prefix>/stk/query
+POST /<prefix>/stk/callback
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+POST /<prefix>/b2c/send
+POST /<prefix>/b2c/validated
+POST /<prefix>/b2c/result
+POST /<prefix>/b2c/timeout
 
-## License
+POST /<prefix>/c2b/register
+POST /<prefix>/c2b/simulate
+POST /<prefix>/c2b/validation
+POST /<prefix>/c2b/confirmation
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+POST /<prefix>/transaction/status
+POST /<prefix>/transaction/status/result
+POST /<prefix>/transaction/status/timeout
+POST /<prefix>/account/balance
+POST /<prefix>/account/balance/result
+POST /<prefix>/account/balance/timeout
+POST /<prefix>/reversal
+POST /<prefix>/reversal/result
+POST /<prefix>/reversal/timeout
+```
+
+## Response Format
+
+All API responses return:
+```json
+{
+  "ok": true,
+  "status": 200,
+  "data": {},
+  "error": null,
+  "body": null
+}
+```
+
+## Generate Security Credential
+
+```bash
+php artisan mpesa:security-credential
+```
+
+## Test Commands (examples)
+
+Set:
+```text
+BASE=https://example.ngrok-free.app
+PREFIX=payments
+```
+
+### STK Push
+```bash
+curl -X POST "$BASE/$PREFIX/stk/push" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "254700000000",
+    "amount": 1,
+    "account_reference": "TEST-001",
+    "transaction_desc": "STK Test",
+    "callback_url": "'"$BASE"'/'"$PREFIX"'/stk/callback"
+  }'
+```
+
+### STK Query
+```bash
+curl -X POST "$BASE/$PREFIX/stk/query" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "checkout_request_id": "ws_CO_123456789"
+  }'
+```
+
+### B2C Send
+```bash
+curl -X POST "$BASE/$PREFIX/b2c/send" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "254700000000",
+    "amount": 10,
+    "remarks": "B2C Test",
+    "occasion": "Test"
+  }'
+```
+
+### B2C Validated
+```bash
+curl -X POST "$BASE/$PREFIX/b2c/validated" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "254700000000",
+    "amount": 10,
+    "remarks": "B2C Validate",
+    "id_number": "12345678"
+  }'
+```
+
+### C2B Register URLs
+```bash
+curl -X POST "$BASE/$PREFIX/c2b/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "short_code": "600997",
+    "confirmation_url": "'"$BASE"'/'"$PREFIX"'/c2b/confirmation",
+    "validation_url": "'"$BASE"'/'"$PREFIX"'/c2b/validation",
+    "response_type": "Completed"
+  }'
+```
+
+### C2B Simulate
+```bash
+curl -X POST "$BASE/$PREFIX/c2b/simulate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "254700000000",
+    "amount": 10,
+    "short_code": "600997",
+    "command_id": "CustomerPayBillOnline",
+    "bill_ref_number": "TEST-001"
+  }'
+```
+
+### C2B Validation (manual test)
+```bash
+curl -X POST "$BASE/$PREFIX/c2b/validation" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ResultCode": 0,
+    "ResultDesc": "Accepted",
+    "TransID": "TEST123",
+    "TransAmount": "10",
+    "MSISDN": "254700000000",
+    "BusinessShortCode": "600997",
+    "BillRefNumber": "TEST-001"
+  }'
+```
+
+### C2B Confirmation (manual test)
+```bash
+curl -X POST "$BASE/$PREFIX/c2b/confirmation" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ResultCode": 0,
+    "ResultDesc": "Accepted",
+    "TransID": "TEST123",
+    "TransAmount": "10",
+    "MSISDN": "254700000000",
+    "BusinessShortCode": "600997",
+    "BillRefNumber": "TEST-001"
+  }'
+```
+
+### Transaction Status
+```bash
+curl -X POST "$BASE/$PREFIX/transaction/status" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "short_code": "600997",
+    "transaction_id": "TEST123",
+    "identifier_type": "4",
+    "remarks": "Status Check"
+  }'
+```
+
+### Transaction Status Result (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/transaction/status/result" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 0,
+      "ResultDesc": "Accepted",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456",
+      "TransactionID": "TEST789"
+    }
+  }'
+```
+
+### Transaction Status Timeout (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/transaction/status/timeout" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 1,
+      "ResultDesc": "Timeout",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456"
+    }
+  }'
+```
+
+### Account Balance
+```bash
+curl -X POST "$BASE/$PREFIX/account/balance" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "short_code": "600997",
+    "identifier_type": "4",
+    "remarks": "Balance Check"
+  }'
+```
+
+### Account Balance Result (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/account/balance/result" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 0,
+      "ResultDesc": "Accepted",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456"
+    }
+  }'
+```
+
+### Account Balance Timeout (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/account/balance/timeout" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 1,
+      "ResultDesc": "Timeout",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456"
+    }
+  }'
+```
+
+### Reversal
+```bash
+curl -X POST "$BASE/$PREFIX/reversal" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "short_code": "600997",
+    "transaction_id": "TEST123",
+    "amount": 10,
+    "remarks": "Reversal Test"
+  }'
+```
+
+### Reversal Result (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/reversal/result" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 0,
+      "ResultDesc": "Accepted",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456",
+      "TransactionID": "TEST789"
+    }
+  }'
+```
+
+### Reversal Timeout (callback test)
+```bash
+curl -X POST "$BASE/$PREFIX/reversal/timeout" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Result": {
+      "ResultCode": 1,
+      "ResultDesc": "Timeout",
+      "OriginatorConversationID": "TEST123",
+      "ConversationID": "TEST456"
+    }
+  }'
+```
+## Notes
+
+- Requests and callbacks are persisted when `MPESA_STORE_REQUESTS=true` and `MPESA_STORE_CALLBACKS=true`.
+- Callbacks can be protected using `MPESA_WEBHOOK_VALIDATION` with token/IP allow-listing.
